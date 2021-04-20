@@ -9,7 +9,7 @@ class DataAccessor:
 
         # Creating the DynamoDB Table Resource
         self.dynamodb = boto3.resource('dynamodb', region_name=region_name)
-        self.table = dynamodb.Table(table_name)
+        self.table = self.dynamodb.Table(table_name)
         self.table_name = table_name
 
     def get_item(self, key, value):
@@ -20,6 +20,9 @@ class DataAccessor:
                     key: value
                 }
             )
+        except Exception:
+            raise Exception
+        '''
         except DynamoDB.Client.exceptions.ProvisionedThroughputExceededException:
             raise DynamoDB.Client.exceptions.ProvisionedThroughputExceededException
 
@@ -31,5 +34,5 @@ class DataAccessor:
 
         except DynamoDB.Client.exceptions.InternalServerError:
             raise DynamoDB.Client.exceptions.InternalServerError
-
+        '''
         return record
