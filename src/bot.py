@@ -1,3 +1,9 @@
+"""gdrive bot source code
+
+This bot is designed to fetch the google drive link for a course according to
+arguments passed in by the user.
+"""
+
 import os
 import re
 import data_accessor as da
@@ -25,10 +31,13 @@ def validate_drive_args(args):
 
     return None
 
-"""
-insert docs here xd
+"""Handler function for the !drive command. 
+
+This command accepts two args
 arg1 = class code
 arg2 = class number
+
+Example usage: !drive CSE 320
 """
 @bot.command(name='drive', help='Provides google drive link of desired class')
 async def drive_cmd_handler(ctx, *args):

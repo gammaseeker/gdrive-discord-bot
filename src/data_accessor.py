@@ -1,8 +1,14 @@
+"""Data accessor for dynamoDB
+
+"""
+
 import boto3
 
 s3 = boto3.resource('s3')
 
 class DataAccessor:
+    """Class to setup client to connect to dynamoDB"""
+
     def __init__(self, table_name, region_name):
         # Creating the DynaoDB Client
         self.dynamodb_client = boto3.client('dynamodb', region_name=region_name)
