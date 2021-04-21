@@ -19,8 +19,8 @@ REGION_NAME = os.getenv('REGION_NAME')
 bot = commands.Bot(command_prefix='!')
 data_accessor = da.DataAccessor(TABLE_NAME, REGION_NAME)
 
-def validate_drive_args(args):
-    if len(args) != 2:
+def validate_drive_args(arg_ctr, args):
+    if len(args) != arg_ctr:
         return "Error. Please format your input correctly: !drive [CLASS] [CODE]\nExample usage: !drive CSE 320"
 
     if not args[0].isalpha():
@@ -42,31 +42,46 @@ Example usage: !drive CSE 320
 @bot.command(name='drive', help='Provides google drive link of desired class')
 async def drive_cmd_handler(ctx, *args):
     response = "If you see this msg, something went very wrong..."
-    invalid = validate_drive_args(args)
+    invalid = validate_drive_args(2, args)
     if not invalid:
         # args[0] and args[1] are both valid format
-        value = args[0].upper() + ' ' + args[1]
+        course = args[0].upper() + ' ' + args[1]
         try:
-            record = data_accessor.get_item(key='class_name', value=value)
+            record = data_accessor.get_item(key='class_name', value=course)
             response = record['Item']['link']
         # This exception is triggered bc 'Item' does not exist in record
         except Exception as e:
-            response = f"Error requested course google drive not found\nContact @joeyjiem"
-        '''
-        except DynamoDB.Client.exceptions.ProvisionedThroughputExceededException:
-            response = "ProvisionedThroughputExceededException contact Joey Jiemjitpolchai"
-
-        except DynamoDB.Client.exceptions.ResourceNotFoundException:
-            response = "ResourceNotFoundException contact Joey Jiemjitpolchai"
-
-        except DynamoDB.Client.exceptions.RequestLimitExceeded:
-            response = "RequestLimitExceeded contact Joey Jiemjitpolchai"
-
-        except DynamoDB.Client.exceptions.InternalServerError:
-            response = "InternalServerError contact Joey Jiemjitpolchai"
-        '''
+            response = f"Error google drive for {course} not found\nContact @joeyjiem"
     else:
         response = invalid
+    await ctx.send(response)
+
+"""Handler function for the !update command. 
+
+This command accepts two args
+arg1 = class code
+arg2 = class number
+arg3 = google drive link
+
+Example usage: !update CSE 320 google.com
+"""
+@bot.command(name='update', help='Updates google drive link of specified class')
+async def update_cmd_handler(ctx, *args):
+    response = "If you see this msg, something went very wrong..."
+    invalid = validate_drive_args(3, args)
+    if not invalid:
+        course = args[0].upper() + ' ' + args[1]
+
+        try:
+            data_accessor.update_item(key='class_name', value=course, new_link=args[2])
+            response = f"{course} google drive link updated successfully to {args[2]}"
+        # This exception is triggered bc 'Item' does not exist in record
+        except Exception as e:
+            response = f"Error could not update link for {course}\nContact @joeyjiem"
+
+    else:
+        response = invalid
+
     await ctx.send(response)
 
 bot.run(TOKEN)
