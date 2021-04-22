@@ -42,3 +42,20 @@ class DataAccessor:
             raise DynamoDB.Client.exceptions.InternalServerError
         '''
         return record
+    
+    def update_item(self, key, value, new_link):
+        try:
+            response = self.table.update_item(
+                TableName=self.table_name,
+                Key={
+                    key: value
+                },
+                UpdateExpression="set link=:l",
+                ExpressionAttributeValues={
+                    ':l': new_link
+                },
+                ReturnValues="UPDATED_NEW"
+            )
+        except Exception:
+            raise Exception
+        return response
