@@ -84,4 +84,9 @@ async def update_cmd_handler(ctx, *args):
 
     await ctx.send(response)
 
+@bot.command(name='kill', help='Shuts down bot')
+async def kill_cmd_handler(ctx):
+    await ctx.send('Bot shutting down')
+    await bot.close()
+
 bot.run(TOKEN)
