@@ -9,6 +9,7 @@ import re
 import data_accessor as da
 
 from discord.ext import commands
+from discord.ext.commands import has_permissions, MissingPermissions
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -85,8 +86,15 @@ async def update_cmd_handler(ctx, *args):
     await ctx.send(response)
 
 @bot.command(name='kill', help='Shuts down bot')
-async def kill_cmd_handler(ctx):
+@has_permissions(administrator=True)
+async def _kill_cmd_handler(ctx):
     await ctx.send('Bot shutting down')
     await bot.close()
+
+@_kill_cmd_handler.error
+async def kill_cmd_handler_error(ctx, error):
+    if isinstance(error, MissingPermissions):
+        response = f"Sorry {ctx.message.author}, you do not have permissions to do that."
+        await ctx.send(response)
 
 bot.run(TOKEN)
