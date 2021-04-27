@@ -16,3 +16,4 @@ documents over the years, it becomes very difficult to remember:
 - discord.py
 - AWS dynamoDB
 - docker
+- hosted on an AWS EC2 instance
