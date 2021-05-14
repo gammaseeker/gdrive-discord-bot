@@ -28,34 +28,41 @@ class DataAccessor:
             )
         except Exception:
             raise Exception
-        '''
-        except DynamoDB.Client.exceptions.ProvisionedThroughputExceededException:
-            raise DynamoDB.Client.exceptions.ProvisionedThroughputExceededException
-
-        except DynamoDB.Client.exceptions.ResourceNotFoundException:
-            raise DynamoDB.Client.exceptions.ResourceNotFoundException
-
-        except DynamoDB.Client.exceptions.RequestLimitExceeded:
-            raise DynamoDB.Client.exceptions.RequestLimitExceeded
-
-        except DynamoDB.Client.exceptions.InternalServerError:
-            raise DynamoDB.Client.exceptions.InternalServerError
-        '''
         return record
     
     def update_item(self, key, value, new_link):
-        try:
-            response = self.table.update_item(
-                TableName=self.table_name,
-                Key={
-                    key: value
-                },
-                UpdateExpression="set link=:l",
-                ExpressionAttributeValues={
-                    ':l': new_link
-                },
-                ReturnValues="UPDATED_NEW"
-            )
-        except Exception:
-            raise Exception
+        record = self.table.get_item(
+            TableName=self.table_name,
+            Key={
+                key: value
+            }
+        )
+        if 'Item' in record:
+            # Record exists, update record
+            try:
+                response = self.table.update_item(
+                    TableName=self.table_name,
+                    Key={
+                        key: value
+                    },
+                    UpdateExpression="set link=:l",
+                    ExpressionAttributeValues={
+                        ':l': new_link
+                    },
+                    ReturnValues="UPDATED_NEW"
+                )
+            except Exception:
+                raise Exception
+        else:
+            # Record doesn't exist yet, insert new record
+            try:
+                response = self.table.put_item(
+                    TableName=self.table_name,
+                    Item={
+                        "class_name": value, 
+                        "link": new_link  
+                    }
+                )
+            except Exception:
+                raise Exception
         return response
